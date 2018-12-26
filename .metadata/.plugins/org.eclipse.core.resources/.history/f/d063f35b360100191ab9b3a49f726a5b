@@ -1,0 +1,302 @@
+import java.awt.Color;
+import java.awt.Cursor;
+import java.awt.Graphics;
+import java.awt.Image;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionAdapter;
+import java.util.ArrayList;
+
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+
+public class BeatGame extends JFrame {
+	private String Title[] = {"Faded", "Blue Zenith", "Flower Dance"};
+	
+	private Image screenImage;
+	private Graphics screenGraphic;
+
+	//시작화면
+	private Image background = new ImageIcon(Main.class.getResource("./images/Background.jpg")).getImage();
+	//메뉴바
+	private JLabel menuBar = new JLabel(new ImageIcon(Main.class.getResource("./images/menuBar.png")));
+	
+	//나가기 버튼
+	private ImageIcon exitButtonImage = new ImageIcon(Main.class.getResource("./images/exitButton.png"));
+	private JButton exitButton = new JButton(exitButtonImage);
+	//시작 버튼
+	private ImageIcon startButtonImage = new ImageIcon(Main.class.getResource("./images/StartButton.png"));
+	private JButton startButton = new JButton(startButtonImage);
+	//곡 선택 버튼
+	private ImageIcon leftButtonImage = new ImageIcon(Main.class.getResource("./images/leftButton.png"));
+	private JButton leftButton = new JButton(leftButtonImage);
+	private ImageIcon rightButtonImage = new ImageIcon(Main.class.getResource("./images/rightButton.png"));
+	private JButton rightButton = new JButton(rightButtonImage);
+	//곡 시작 버튼
+	private ImageIcon MusicStartButtonImage = new ImageIcon(Main.class.getResource("./images/MusicStartButton.png"));
+	private JButton MusicStartButton = new JButton(MusicStartButtonImage);
+	
+	
+	private int mouseX, mouseY;
+	private boolean isMainScreen = false;
+	
+	ArrayList<Track> trackList = new ArrayList<Track>();
+	
+	// 곡 선택
+	private Image titleImage;
+	private Image selectedImage;
+	private Music selectedMusic;
+	private int nowSelected = 0;
+	
+	BeatGame() {
+		setUndecorated(true);
+		setTitle("비트게임");
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setSize(Main.SCREEN_WIDTH, Main.SCREEN_HEIGHT);
+		setResizable(false); // 사이즈 고정
+		setLocationRelativeTo(null); // 화면 중앙에 나타나게 적용
+		setVisible(true);
+		setBackground(new Color(0, 0, 0, 0));
+		setLayout(null);
+		
+		Music introMusic = new Music("main_music", "introMusic.mp3", true);
+		introMusic.start();
+		
+		trackList.add(new Track(
+				"title.png",
+				"image.jpg",
+				"image.jpg",
+				"Faded_selected.mp3",
+				"Faded.mp3"
+				));
+		trackList.add(new Track(
+				"title.png",
+				"image.jpg",
+				"image.jpg",
+				"Blue Zenith_selected.mp3",
+				"Blue Zenith.mp3"
+				));
+		trackList.add(new Track(
+				"title.png",
+				"image.jpg",
+				"image.jpg",
+				"Flower Dance_selected.mp3",
+				"Flower Dance.mp3"
+				));
+		
+		exitButton.setBounds(1245, 0, 30, 30);
+		exitButton.setBorderPainted(false);
+		exitButton.setContentAreaFilled(false);
+		exitButton.setFocusPainted(false);
+		exitButton.addMouseListener(new MouseAdapter( ) {
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				exitButton.setCursor(new Cursor(Cursor.HAND_CURSOR)); // 손가락 커서로 변경
+				Music buttonEnteredMusic = new Music("main_music", "buttonEnteredMusic.mp3", false);
+				buttonEnteredMusic.start();
+			}
+			@Override
+			public void mouseExited(MouseEvent e) {
+				exitButton.setCursor(new Cursor(Cursor.DEFAULT_CURSOR)); // 기본 커서로 변경
+			}
+			@Override
+			public void mousePressed(MouseEvent e) {
+				Music buttonEnteredMusic = new Music("main_music","buttonPressedMusic.mp3", false);
+				buttonEnteredMusic.start();
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException ex) {
+					ex.printStackTrace();
+				}
+				System.exit(0);
+			}
+		});
+		add(exitButton);
+		
+		startButton.setBounds(40, 200, 278, 127);
+		startButton.setBorderPainted(false);
+		startButton.setContentAreaFilled(false);
+		startButton.setFocusPainted(false);
+		startButton.addMouseListener(new MouseAdapter( ) {
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				startButton.setCursor(new Cursor(Cursor.HAND_CURSOR)); // 손가락 커서로 변경
+				Music buttonEnteredMusic = new Music("main_music", "buttonEnteredMusic.mp3", false);
+				buttonEnteredMusic.start();
+			}
+			@Override
+			public void mouseExited(MouseEvent e) {
+				startButton.setCursor(new Cursor(Cursor.DEFAULT_CURSOR)); // 기본 커서로 변경
+			}
+			@Override
+			public void mousePressed(MouseEvent e) {
+				Music buttonEnteredMusic = new Music("main_music", "buttonPressedMusic.mp3", false);
+				buttonEnteredMusic.start();
+				introMusic.close();
+				selectTrack(0);
+				startButton.setVisible(false);
+				leftButton.setVisible(true);
+				rightButton.setVisible(true);
+				MusicStartButton.setVisible(true);
+				background = new ImageIcon(Main.class.getResource("./images/mainBackground.jpg")).getImage();
+				isMainScreen = true;
+			}
+		});
+		add(startButton);
+		
+		leftButton.setVisible(false);
+		leftButton.setBounds(0, 0, 300, 720);
+		leftButton.setBorderPainted(false);
+		leftButton.setContentAreaFilled(false);
+		leftButton.setFocusPainted(false);
+		leftButton.addMouseListener(new MouseAdapter( ) {
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				leftButton.setCursor(new Cursor(Cursor.HAND_CURSOR)); // 손가락 커서로 변경
+				Music buttonEnteredMusic = new Music("main_music", "buttonEnteredMusic.mp3", false);
+				buttonEnteredMusic.start();
+			}
+			@Override
+			public void mouseExited(MouseEvent e) {
+				leftButton.setCursor(new Cursor(Cursor.DEFAULT_CURSOR)); // 기본 커서로 변경
+			}
+			@Override
+			public void mousePressed(MouseEvent e) {
+				Music buttonEnteredMusic = new Music("main_music","buttonPressedMusic.mp3", false);
+				buttonEnteredMusic.start();
+				// 왼쪽 버튼 이벤트
+				selectLeft();
+			}
+		});
+		add(leftButton);
+		
+		rightButton.setVisible(false);
+		rightButton.setBounds(980, 0, 300, 720);
+		rightButton.setBorderPainted(false);
+		rightButton.setContentAreaFilled(false);
+		rightButton.setFocusPainted(false);
+		rightButton.addMouseListener(new MouseAdapter( ) {
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				rightButton.setCursor(new Cursor(Cursor.HAND_CURSOR)); // 손가락 커서로 변경
+				Music buttonEnteredMusic = new Music("main_music", "buttonEnteredMusic.mp3", false);
+				buttonEnteredMusic.start();
+			}
+			@Override
+			public void mouseExited(MouseEvent e) {
+				rightButton.setCursor(new Cursor(Cursor.DEFAULT_CURSOR)); // 기본 커서로 변경
+			}
+			@Override
+			public void mousePressed(MouseEvent e) {
+				Music buttonEnteredMusic = new Music("main_music","buttonPressedMusic.mp3", false);
+				buttonEnteredMusic.start();
+				// 오른쪽 버튼 이벤트
+				selectRight();
+			}
+		});
+		add(rightButton);
+		
+		MusicStartButton.setVisible(false);
+		MusicStartButton.setBounds(515, 310, 250, 100);
+		MusicStartButton.setBorderPainted(false);
+		MusicStartButton.setContentAreaFilled(false);
+		MusicStartButton.setFocusPainted(false);
+		MusicStartButton.addMouseListener(new MouseAdapter( ) {
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				MusicStartButton.setCursor(new Cursor(Cursor.HAND_CURSOR)); // 손가락 커서로 변경
+				Music buttonEnteredMusic = new Music("main_music", "buttonEnteredMusic.mp3", false);
+				buttonEnteredMusic.start();
+			}
+			@Override
+			public void mouseExited(MouseEvent e) {
+				MusicStartButton.setCursor(new Cursor(Cursor.DEFAULT_CURSOR)); // 기본 커서로 변경
+			}
+			@Override
+			public void mousePressed(MouseEvent e) {
+				Music buttonEnteredMusic = new Music("main_music","buttonPressedMusic.mp3", false);
+				buttonEnteredMusic.start();
+				// 곡 시작 이벤트
+				gameStart(nowSelected);
+			}
+		});
+		add(MusicStartButton);
+		
+		menuBar.setBounds(0, 0, 1280, 30);
+		menuBar.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mousePressed(MouseEvent e) { //마우스 좌표 불러오기
+				mouseX = e.getX();
+				mouseY = e.getY();
+			}
+		});
+		menuBar.addMouseMotionListener(new MouseMotionAdapter( ) {
+			@Override
+			public void mouseDragged(MouseEvent e) { // 마우스 드래그로 창 이동
+				int x = e.getXOnScreen();
+				int y = e.getYOnScreen();
+				setLocation(x - mouseX, y - mouseY);
+			}
+		});
+		add(menuBar);
+	}
+
+	public void paint(Graphics g) {
+		screenImage = createImage(Main.SCREEN_WIDTH, Main.SCREEN_HEIGHT);
+		screenGraphic = screenImage.getGraphics();
+		screenDraw(screenGraphic);
+		g.drawImage(screenImage, 0, 0, null);
+	}
+
+	public void screenDraw(Graphics g) {
+		g.drawImage(background, 0, 0, null);
+		if(isMainScreen) {
+			g.drawImage(selectedImage, 0, 0, null);
+			g.drawImage(titleImage, 450, 600, null);
+		}
+		paintComponents(g); // 고정적인 이미지 그릴 때 사용 ex 메뉴바
+		this.repaint();
+	}
+	private int cnt = 0;
+	public void selectTrack(int nowSelected) {
+		
+		if(selectedMusic != null)
+			selectedMusic.close();
+		titleImage = new ImageIcon(Main.class.getResource(Title[cnt] + "/" + trackList.get(nowSelected).getTitleImage())).getImage();
+		selectedImage = new ImageIcon(Main.class.getResource(Title[cnt] + "/" + trackList.get(nowSelected).getStartImage())).getImage();
+		selectedMusic = new Music(Title[cnt], trackList.get(nowSelected).getStartMusic(), true);
+		selectedMusic.start();
+	}
+	
+	public void selectLeft() {
+		if(nowSelected == 0) {
+			nowSelected = trackList.size() - 1; cnt -= 1;
+		}
+		else {
+			nowSelected--; cnt--;
+		}
+		selectTrack(nowSelected);
+	}
+	public void selectRight() {
+		if(nowSelected == trackList.size() - 1) {
+			nowSelected = 0; cnt = 0;
+		}
+		else {
+			nowSelected++; cnt++;
+		}
+		selectTrack(nowSelected);
+	}
+	
+	public void gameStart(int nowSelected) {
+		if(selectedMusic != null)
+			selectedMusic.close();
+		isMainScreen = false;
+		leftButton.setVisible(false);
+		rightButton.setVisible(false);
+		MusicStartButton.setVisible(false);
+		background = new ImageIcon(Main.class.getResource("./images/" + trackList.get(nowSelected).getGameImage())).getImage();
+		
+	}
+}

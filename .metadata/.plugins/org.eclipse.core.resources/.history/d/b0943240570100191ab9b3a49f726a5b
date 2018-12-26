@@ -1,0 +1,39 @@
+import java.awt.Graphics2D;
+import java.awt.Image;
+
+import javax.swing.ImageIcon;
+
+public class Note extends Thread{
+	private Image note1Image = new ImageIcon(Main.class.getResource("./images/note1.png")).getImage();
+	private Image note2Image = new ImageIcon(Main.class.getResource("./images/note2.png")).getImage();
+	private int x, y = 580 - 1000 / Main.SLEEP_TIME * Main.NOTE_SPEED;
+	private String noteType;
+	
+	public Note(int x, String noteType) {
+		this.x = x;
+		this.noteType = noteType;
+	}
+	
+	public void screenDraw(Graphics2D g) {
+		if(noteType.equals("outside"))
+			g.drawImage(note1Image, x, y, null);
+		else if(noteType.equals("inside"))
+			g.drawImage(note2Image, x, y, null);
+	}
+	
+	public void drop() {
+		y += Main.NOTE_SPEED;
+	}
+	
+	@Override
+	public void run() {
+		try {
+			while (true) {
+				drop();
+				Thread.sleep(Main.SLEEP_TIME); // 0.01 «¡∑π¿”
+			}
+		} catch(Exception e) {
+			System.err.println(e.getMessage());
+		}
+	}
+}

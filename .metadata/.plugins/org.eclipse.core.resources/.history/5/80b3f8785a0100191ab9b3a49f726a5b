@@ -1,0 +1,143 @@
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.RenderingHints;
+import java.util.ArrayList;
+
+import javax.swing.ImageIcon;
+
+public class Game extends Thread {
+	//노트 판정 라인
+	private Image judgementLineImage = new ImageIcon(Main.class.getResource("./images/judgementLine.png")).getImage();	
+	//게임 정보
+	private Image gameInfoImage = new ImageIcon(Main.class.getResource("./images/gameInfo.png")).getImage();
+	//노트 경로 이미지
+	private Image noteRouteDImage = new ImageIcon(Main.class.getResource("./images/noteRoute.png")).getImage();	
+	private Image noteRouteFImage = new ImageIcon(Main.class.getResource("./images/noteRoute.png")).getImage();	
+	private Image noteRouteJImage = new ImageIcon(Main.class.getResource("./images/noteRoute.png")).getImage();	
+	private Image noteRouteKImage = new ImageIcon(Main.class.getResource("./images/noteRoute.png")).getImage();		
+		
+	//키 이미지
+	private Image dKeyImage = new ImageIcon(Main.class.getResource("./images/dKey.png")).getImage();
+	private Image fKeyImage = new ImageIcon(Main.class.getResource("./images/fKey.png")).getImage();
+	private Image jKeyImage = new ImageIcon(Main.class.getResource("./images/jKey.png")).getImage();
+	private Image kKeyImage = new ImageIcon(Main.class.getResource("./images/kKey.png")).getImage();
+		
+	private String titleName;
+	private String musicTitle;
+	private Music gameMusic;
+	
+	ArrayList<Note> noteList = new ArrayList<Note>();
+	
+	public Game(String titleName, String musicTitle) {
+		this.titleName = titleName;
+		this.musicTitle = musicTitle;
+		gameMusic = new Music(BeatGame.Title[BeatGame.cnt], this.musicTitle, false);
+	}
+		
+	public void screenDraw(Graphics2D g) {
+		g.drawImage(noteRouteDImage, 200, 30, null);
+		g.drawImage(noteRouteFImage, 270, 30, null);
+		g.drawImage(noteRouteJImage, 340, 30, null);
+		g.drawImage(noteRouteKImage, 410, 30, null);
+		g.drawImage(gameInfoImage, 980, 30, null);
+		g.drawImage(judgementLineImage, 200, 580, null);
+		for(int i = 0; i < noteList.size(); i++)
+		{
+			Note note = noteList.get(i);
+			note.screenDraw(g);
+		}
+		g.drawImage(dKeyImage, 200, 605, null);
+		g.drawImage(fKeyImage, 270, 605, null);
+		g.drawImage(jKeyImage, 340, 605, null);
+		g.drawImage(kKeyImage, 410, 605, null);
+		g.setColor(Color.white);
+		((Graphics2D) g).setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+		g.setFont(new Font("HCR Dotum", Font.BOLD, 100));
+		g.drawString("000000", 930, 110);
+	}
+	
+	public void pressD() {
+		noteRouteDImage = new ImageIcon(Main.class.getResource("./images/noteRoutePressed.png")).getImage();
+		new Music("main_music","hitnormal.mp3", false).start();
+	}
+	public void releaseD() {
+		noteRouteDImage = new ImageIcon(Main.class.getResource("./images/noteRoute.png")).getImage();
+	}
+	public void pressF() {
+		noteRouteFImage = new ImageIcon(Main.class.getResource("./images/noteRoutePressed.png")).getImage();
+		new Music("main_music","hitnormal.mp3", false).start();
+	}
+	public void releaseF() {
+		noteRouteFImage = new ImageIcon(Main.class.getResource("./images/noteRoute.png")).getImage();
+	}
+	public void pressJ() {
+		noteRouteJImage = new ImageIcon(Main.class.getResource("./images/noteRoutePressed.png")).getImage();
+		new Music("main_music","hitnormal.mp3", false).start();
+	}
+	public void releaseJ() {
+		noteRouteJImage = new ImageIcon(Main.class.getResource("./images/noteRoute.png")).getImage();
+	}
+	public void pressK() {
+		noteRouteKImage = new ImageIcon(Main.class.getResource("./images/noteRoutePressed.png")).getImage();
+		new Music("main_music","hitnormal.mp3", false).start();
+	}
+	public void releaseK() {
+		noteRouteKImage = new ImageIcon(Main.class.getResource("./images/noteRoute.png")).getImage();
+	}
+	
+	@Override
+	public void run() {
+		dropNotes();
+	}
+	
+	public void close() {
+		gameMusic.close();
+		this.interrupt();
+	}
+	
+	public void dropNotes() {
+		Beat[] beats = null;
+		if(titleName.equals("Faded")) {
+			int startTime = 1000 - Main.REACH_TIME * 1000;
+			
+			beats = new Beat[] {
+					new Beat(startTime, "D"),
+			};
+ 		}
+		else if(titleName.equals("Blue Zenith")) {
+			int startTime = 1000 - Main.REACH_TIME * 1000;
+			beats = new Beat[] {
+					new Beat(startTime, "D"),
+			};
+		}
+		else if(titleName.equals("Flower Dance")) {
+			int startTime = 1000 - Main.REACH_TIME * 1000;
+			int gap = 125;
+			beats = new Beat[] {
+					new Beat(startTime + gap * 210, "K"),
+					new Beat(startTime + gap * 212, "D"),
+			};
+		}
+		int i = 0;
+		gameMusic.start();
+		while(i < beats.length && !isInterrupted()) {
+			boolean dropped = false;
+			if(beats[i].getTime() <= gameMusic.getTime()) {
+				Note note = new Note(beats[i].getNoteName());
+				note.start();
+				noteList.add(note);
+				i++;
+				dropped = true;
+			}
+			if(!dropped) {
+				try {
+					Thread.sleep(5);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+}
