@@ -1,2 +1,2 @@
-*.lingulist-vendored
-*.java lingulist-vendored=false
+*.linguist-vendored
+*.java linguist-vendored=false
